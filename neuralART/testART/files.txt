@@ -1,0 +1,4 @@
+sounds/bendir_kort.wav
+1
+sounds/clicks.wav
+2

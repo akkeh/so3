@@ -1,0 +1,5 @@
+*.wav
+*.DS_*
+*.swp
+*.fuse_hidden*
+*.o

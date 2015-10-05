@@ -1,0 +1,18 @@
+#! /bin/bash
+
+
+iterations=$1
+V1=$2
+V2=$3
+
+rm res_fP.txt
+rm res_fN.txt
+
+echo "${V1} ${V2} ${iterations}"
+
+for i in `seq 1 $iterations`
+do
+    vigl=`echo "scale=10; (${V2}-${V1}) / ${iterations} * ${i}" | bc`
+    echo "iteration: ${i} testing vigilance: ${vigl}"
+    ./sogmProj3 ${vigl}
+done
