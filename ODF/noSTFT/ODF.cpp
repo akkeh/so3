@@ -116,14 +116,14 @@ float abs(float a) {
 float* ODF::phaseFlux(float* x, unsigned long N, float th, unsigned long rechargeN, float binTh, unsigned long binRel) {
     float* onsets = new float[N];
 
-    STFT* stft2 = new STFT(WINDOWSIZE, FFTSIZE, HOPSIZE);
+    // STFT* stft = new STFT(WINDOWSIZE, FFTSIZE, HOPSIZE);
     // float** X = STFT->stft(x, N, WINDOWSIZE, FFTSIZE, HOPSIZE);
     float* x_compl = new float[N*2];
     for(unsigned long n=0; n<N; ++n) {
         x_compl[2*n] = x[n];
         x_compl[2*n+1] = 0;
     }
-    float** X = stft2->stft(x_compl, N, WINDOWSIZE, FFTSIZE, HOPSIZE);
+    float** X = stft->stft(x_compl, N, WINDOWSIZE, FFTSIZE, HOPSIZE);
 
     unsigned long frames = N/HOPSIZE;
     float** mX = stft_mag(X, frames, FFTSIZE);
@@ -138,7 +138,7 @@ float* ODF::phaseFlux(float* x, unsigned long N, float th, unsigned long recharg
     for(unsigned long l=0; l<frames; ++l) {
         float val = 0;
         for(unsigned k=0; k<FFTSIZE; ++k)
-            val += (derv[k][l] > binTh);// * (mX[l][k]);// > binTh);
+            val += (derv[k][l]);// * (mX[l][k]);// > binTh);
         val = val / FFTSIZE;
         if(val > (th * thMul)) {
             std::cout << "val: " << val << " th: " << th << " thMul: " << thMul << std::endl;

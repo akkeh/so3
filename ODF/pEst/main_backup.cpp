@@ -1,8 +1,9 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "ODF.h"
+#include "pEst.h"
 #include "audio_io.h"
+#include "wavio.h"
 
 #define SAMPLERATE	44100
 #define CHANNELS	1
@@ -21,7 +22,9 @@ int findNotZeros(float* x, unsigned long N, unsigned long offset, float* buffer)
         };
     };
     if(count > 0) 
-        std::cout << "onset! " << count << "\n";
+        std::cout << count << "\n";
+    for(unsigned long n=0; n<128; ++n)
+        std::cout << 0 << std::endl;
     return count;
 };
 
@@ -35,7 +38,7 @@ int main(int argc, char** argv) {
     unsigned char wr_ptr1;
     unsigned char wr_ptr2;
     
-    unsigned long N = atoi(argv[1]);
+    unsigned long N = atoi(argv[2]);
     // open audiostream:
     Audio_IO audioStream(SAMPLERATE, 1);
     float* buffer = new float[N];
@@ -52,21 +55,32 @@ int main(int argc, char** argv) {
 
 
     // init ODF:
-    float th = atof(argv[2]);
-    int rechargeN = atoi(argv[3]);
-    float binTh = atof(argv[4]);
-    int binN = atoi(argv[5]);
-    ODF* odf = new ODF(N, 512, 1024, 128);
+    float th = atof(argv[3]);
     float* onsets;
 
+    pEst* odf = new pEst(512, 512, 128);
+
+    unsigned long bufN = -10;
+    float* file_buf = readWav(argv[1], &bufN, 0);
+    bool fileRead = true;
+    unsigned long rptr = 0;
     unsigned long frame = 0; 
     while (true) {
-        audioStream.read(buffer);
-        onsets = odf->phaseFlux(buffer, N, th, rechargeN, binTh, binN);
-        //findNotZeros(onsets, N, frame, buffer);
+        /*
+        if(!fileRead)
+            audioStream.read(buffer); 
+        */
+            for(unsigned long n=0; n<N; ++n) {
+                buffer[n] = file_buf[rptr];
+                rptr++;
+                if(rptr > bufN)
+                    goto exit;
+            };
+        onsets = odf->phaseFlux(buffer, N, th);
+        findNotZeros(onsets, N, frame, buffer);
         frame++;
     }
-
+    exit:
     delete[] buffer;
 
     return 0;

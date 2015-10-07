@@ -8,6 +8,8 @@ V2=$3
 rm res_fP.txt
 rm res_fN.txt
 
+./listfiles sounds > files.txt
+
 echo "${V1} ${V2} ${iterations}"
 
 for i in `seq 1 $iterations`

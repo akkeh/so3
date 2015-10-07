@@ -30,7 +30,8 @@ int main(int argc, char** argv) {
 
     ART* art = new ART(4096/128, 1024, vigilance);
     unsigned long N;
-    int fP, fN;
+    int fP = 0;
+    int fN = 0;
     std::string fileIdstr;    
     while(std::getline(files, file)) {
         N = -10;
