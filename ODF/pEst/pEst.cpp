@@ -79,7 +79,7 @@ float* pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, fl
             };
             err = ((pX[l][k]+M_PI) - est[k]);
             err = err*err;  // squared error
-            err = err < errTh;
+            err = err > errTh;
             err = err * (mX[l][k] > noiseTh) * (mX[l][k] - mX_mem[k] > 0);
             Ponset += err; // increase probability of onset
             est[k] = pX[l][k] + M_PI; 
