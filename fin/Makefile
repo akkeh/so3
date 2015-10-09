@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall
 LDFLAGS= -L/usr/local/lib -lportaudio
 
-OBJ= ./main.o STFT/STFT.o neuralART/art.o neuralART/neuron.o #wavio.o
+OBJ= main.o pEst.o STFT.o audio_io.o art.o neuron.o
 SHELL := /bin/bash
 
 all: sogmProj3
