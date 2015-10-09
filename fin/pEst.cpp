@@ -79,7 +79,7 @@ float* normalise(float* x, unsigned long N) {
     return y;
 };
 
-unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, float onsetTh, float recharge) {
+long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, float onsetTh, float recharge) {
     unsigned long frames = N/H;
    
     float* x_c = new float[2*N];
@@ -165,5 +165,8 @@ unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noi
 //    for(unsigned long l=0; l<frames; ++l)
 //        onsets[l*H] = onset_is[l];
 
-    return max_i;
+    if(onsets[max_i*H] > onsetTh) 
+        return max_i;
+    else
+        return -10;
 };
