@@ -63,19 +63,24 @@ int main(int argc, char** argv) {
     while (true) {
         
         audioStream.read(buffer);
+    
+        std::cout << "ODF\n";
         strt_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, recharge);
         for(unsigned long n=0; n<2048-old_strt; ++n)
             snd[2048-old_strt + n] = buffer[n];
         
         if(test) {
+            std::cout << "STFT\n";
             X = stft.stft(snd, 2048, 512, 512, 128);
+            std::cout << "ART\n";
             art.eval(X, 0);
             test = false;
         }
-        old_strt = strt_n;
-        for(unsigned long n=0; n<N-strt_n; ++n)
-            snd[n] = buffer[n + strt_n];       
         if(strt_n > 0) {
+            for(unsigned long n=0; n<N-strt_n; ++n)
+                snd[n] = buffer[n + strt_n];       
+
+            old_strt = strt_n;
             test = true; 
             std::cout << "ONSET!\n";
         }

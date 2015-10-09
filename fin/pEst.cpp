@@ -130,6 +130,12 @@ long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, floa
     if(thMul < 1)
         thMul = 1;
     }
+    delete[] x_c;
+    for(unsigned long l=0; l<frames; ++l) {
+        delete[] X[l];   
+        delete[] mX[l];   
+        delete[] pX[l];   
+    }
     for(unsigned long l=1; l<frames-1; ++l)
         if(onset_is[l] > 0) {
             if(onset_is[l-1] == 0 && onset_is[l+1] == 0)
@@ -161,10 +167,9 @@ long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, floa
     }   
 
 
-    onsets[max_i*H] = (val + max_val) / (recharge * 2);
 //    for(unsigned long l=0; l<frames; ++l)
 //        onsets[l*H] = onset_is[l];
-
+    delete[] onset_is;
     if(onsets[max_i*H] > onsetTh) 
         return max_i;
     else
