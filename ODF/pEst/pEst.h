@@ -13,6 +13,7 @@ private:
     float th;
     float thMul;
     float* mX_mem;
+    float amp_mem;
 };
 
 
