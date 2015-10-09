@@ -10,11 +10,11 @@ rm res_fN.txt
 
 ./listfiles sounds > files.txt
 
-echo "${V1} ${V2} ${iterations}"
+#echo "${V1} ${V2} ${iterations}"
 
-for i in `seq 1 $iterations`
+for i in `seq 0 $iterations`
 do
-    vigl=`echo "scale=10; (${V2}-${V1}) / ${iterations} * ${i}" | bc`
+    vigl=`echo "scale=10; (${V2}-${V1}) / ${iterations} * ${i}" + ${V1} | bc`
     echo "iteration: ${i} testing vigilance: ${vigl}"
     ./sogmProj3 ${vigl}
 done
