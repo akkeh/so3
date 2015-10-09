@@ -10,8 +10,10 @@ pEst::pEst(unsigned long M, unsigned long bins, unsigned long H) {
     this->H = H;
     est = new float[bins >> 1];
     Ts = new float[bins >> 1];
+    mX_mem = new float[bins >> 1];
     for(unsigned long k=0; k<bins >> 1; ++k) {
         est[k] = 0;
+        mX_mem[k] = 0;
     }
     thMul = 1;
 };
@@ -44,7 +46,7 @@ float** stft_mag(float** X, unsigned long frames, unsigned long bins) {
     return mX;
 };
 
-float* pEst::phaseFlux(float* x, unsigned long N, float errTh, float onsetTh, float recharge) {
+float* pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, float onsetTh, float recharge) {
     unsigned long frames = N/H;
    
     float* x_c = new float[2*N];
@@ -75,22 +77,29 @@ float* pEst::phaseFlux(float* x, unsigned long N, float errTh, float onsetTh, fl
                 if(est[k] > TWOPI)
                     est[k] = est[k] - TWOPI;
             };
-           err = ((pX[l][k]+M_PI) - est[k]);
+            err = ((pX[l][k]+M_PI) - est[k]);
             err = err*err;  // squared error
-            err = err;// * mX[l][k];
-            if(err > errTh)
-                Ponset++; // increase probability of onset
+            err = err < errTh;
+            err = err * (mX[l][k] > noiseTh) * (mX[l][k] - mX_mem[k] > 0);
+            Ponset += err; // increase probability of onset
             est[k] = pX[l][k] + M_PI; 
+            mX_mem[k] = mX[l][k];
             
-            amp += mX[l][k] / hBins; 
         }
-        if(Ponset * amp > onsetTh * thMul) 
-            onsets[l*H] = Ponset * amp / hBins;
-            thMul = thMul * recharge;
-    };
-    if(thMul > 1)
-        thMul *= recharge;
+        if(Ponset > (onsetTh * thMul))
+            onsets[l*H] = Ponset;// / hBins;
+    
+       if(thMul > 1)
+        thMul *= 1 - (1 / recharge);
     if(thMul < 1)
         thMul = 1;
+    }
+    
+     for(unsigned long l=1; l<frames-1; ++l)
+            if(onsets[l*H] > 0)
+                if(onsets[(l-1)*H] == 0 && onsets[(l+1)*H] == 0)
+                    onsets[l*H] = 0;
+   
+
     return onsets;
 };

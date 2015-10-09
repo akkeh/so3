@@ -9,7 +9,7 @@
 #define SAMPLERATE	44100
 #define CHANNELS	1
 #define FRAMES	    65536
-#define ARGCOUNT 3 
+#define ARGCOUNT 5
 
 /* sample input:
 $ ./sogmProj3 4096 0.08 0.001 100
@@ -31,7 +31,7 @@ int findNotZeros(float* x, unsigned long N, unsigned long offset, float* buffer)
 
 int main(int argc, char** argv) {    
     if(argc < ARGCOUNT) {
-        std::cout << "usage: ....\n";
+        std::cout << "usage: [file][blocksize][errorTh][noiseTh][onsetTh][recharge]\n";
         return -1;
     }
 
@@ -59,8 +59,9 @@ int main(int argc, char** argv) {
     // init ODF:
     float* onsets = new float[N];
     float th = atof(argv[3]);
-    float onsetTh = atof(argv[4]);
-    float recharge = atof(argv[5]);
+    float noiseTh = atof(argv[4]);
+    float onsetTh = atof(argv[5]);
+    float recharge = atof(argv[6]);
     pEst* odf = new pEst(512, 512, 128);
 
     unsigned long bufN = -10;
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
         for(unsigned long n=0; n<N; ++n)
             buffer[n] = file_buf[n + (N*l)];
         
-        onsets = odf->phaseFlux(buffer, N, th, onsetTh, recharge);
+        onsets = odf->phaseFlux(buffer, N, th, noiseTh, onsetTh, recharge);
         for(unsigned long n=0; n<N; ++n)
             onsetFile << onsets[n] << std::endl;    
 
