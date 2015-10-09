@@ -1,6 +1,8 @@
 #ifndef __NEURON_H_
 #define __NEURON_H_
 
+#include "math.h"
+
 class Neuron;
 
 class Neuron {
@@ -17,10 +19,10 @@ private:
 	unsigned long id;
 
 
-	float c;	// weigthing change factor	
+	float c;	// weigthing change factor
 	float y;
-	
-	
+
+
 	float** last_x;
 	void update_w();
 };

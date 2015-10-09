@@ -104,7 +104,7 @@ float* readWav(const char* filename, unsigned long* N, int print) {
     if(blk_all != ((bps/8)*chn_num)) {printf("blk_all == ((bps/8)*chn_num) check failed!\n"); goto exit; }
     else if(print == 1) printf("blk_all == ((bps/8)*chn_num)\n");
 
-    bit_depth = (std::pow(2,bps/2));
+    bit_depth = (std::pow(2,bps/2.0));
     if(print == 1) printf("bitdepth: %i", bit_depth);
     in_data = new short[size];
     x = new float[size];
@@ -128,4 +128,3 @@ float* readWav(const char* filename, unsigned long* N, int print) {
     }
     return x;
 }
-

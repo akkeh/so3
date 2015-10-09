@@ -21,9 +21,10 @@ float Neuron::eval(float** x) {
             error = (x[m][n] - w[m][n]);
 	    	y += error*error;
         }
+	y = sqrt(y);
     y = y / (M*N);
 	last_x = x;
-	return y;  // squared error
+	return y;
 };
 
 void Neuron::update_w() {

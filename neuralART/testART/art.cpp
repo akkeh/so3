@@ -28,28 +28,32 @@ long ART::eval(float** x, unsigned long id) {
 	} else {
 		float* y = new float[neuronCount];
 		for(unsigned long i=0; i<neuronCount; ++i) {
-			y[i] = field2[i]->eval(x);		// need abs?
+			y[i] = field2[i]->eval(x);	//Compute errors
+			std::cout << "Error: " << y[i] << std::endl;
 		};
-	
-		// find winner:
-		unsigned long max_i = 0;
+
+		// find smallest error:
+		unsigned long min_i = 0;
 		for(unsigned long i=0; i<neuronCount; ++i) {
-			if(y[i] > y[max_i])
-				max_i = i;
+			if(y[i] <= y[min_i])
+				min_i = i;
 		};
-		
-		// winner > vigilance?
-		if(y[max_i] > vigilance) {
-			field2[max_i]->won();
-			
-			return max_i;
+		float min_val = y[min_i];
+		delete[] y;
+		//Winner < vigilance?
+		if(min_val < vigilance) {
+			std::cout << "Match, no neuron added" << std::endl;
+			field2[min_i]->won();
+
+			return min_i;
 		} else {
 			add_Neuron(x, id);
+			std::cout << "Neuron added, neuronCount: " << neuronCount << std::endl;
 			return neuronCount - 1;
 		}
 		return -1;
 	};
-	
+
 };
 
 void save_State() {
@@ -60,7 +64,7 @@ void save_State() {
 void ART::add_Neuron(float** x, unsigned long id) {
 	field2[neuronCount] = new Neuron(x, M, N, c, id);
 	neuronCount++;
-}; 
+};
 
 ART::ART(unsigned long t_M, unsigned long t_N, float t_vigilance) {
     M = t_M;
@@ -69,7 +73,7 @@ ART::ART(unsigned long t_M, unsigned long t_N, float t_vigilance) {
 
 	field2 = new Neuron*[FIELD2SIZE];	// possible group size
 	neuronCount = 0;
-	
+
 	c = 0.5;	// learning constant
 };
 
@@ -82,4 +86,3 @@ ART::~ART() {
 		$ ./ART 2048 10000 10 0.016
 
 */
-
