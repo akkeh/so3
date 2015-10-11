@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
             std::cout << "STFT\n";
             X = stft.stft(snd, 2048, 512, 512, 128);
             std::cout << "ART\n";
-   //         art.eval(X, 0);
+            art.eval(X, 0);
         }
     }
     

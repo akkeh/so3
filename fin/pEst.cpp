@@ -126,7 +126,7 @@ long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, flo
         }
         onset_is[l] = Ponset;
     }
-
+    /*
     for(unsigned long l=1; l<frames-1; ++l) {
         delete[] mX[l];
         delete[] pX[l];
@@ -137,27 +137,30 @@ long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, flo
         };
         amp_mem = amp;
     }
-    
+    */
     long max_i = 0;
     float max_val = 0;
-    for(unsigned long l=0; l<frames; ++l)
+    for(unsigned long l=1; l<frames-1; ++l) {
         if(onset_is[l] > onset_is[max_i]) {
-            std::cout << "onset[" << l << "]: " << onset_is[l] << std::endl;
             max_i = (long)l;
         }
+    }
     max_val = onset_is[max_i];
-
+    for(unsigned long l=0; l<frames; ++l) {
+        delete[] mX[l];
+        delete[] pX[l];
+    };
     delete[] X;
     delete[] mX;
     delete[] pX;
    
      
     if(onset_is[max_i] > onsetTh) {
-        std::cout << "max_i: " << max_i << std::endl;
-        return max_i;
+        std::cout << "onset at frame: " << max_i << std::endl;
+
+        return max_i * H;
     }
     else { 
-        std::cout << "no onset!\n";   
         return -10;
     }
 };
