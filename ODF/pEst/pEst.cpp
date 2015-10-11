@@ -122,6 +122,8 @@ unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noi
             amp += mX[l][k];
             
         }
+        onset_is[l] = Ponset;
+        /*
         if(Ponset > (onsetTh * thMul))
             onset_is[l] = Ponset;// / hBins;
     
@@ -129,6 +131,7 @@ unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noi
         thMul *= 1 - (1 / recharge);
     if(thMul < 1)
         thMul = 1;
+    */
     }
     for(unsigned long l=1; l<frames-1; ++l)
         if(onset_is[l] > 0) {
@@ -145,7 +148,7 @@ unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noi
             max_i = l;
     max_val = onset_is[max_i];
 
- 
+    /* 
     // lateral: 
     float val = 0;
     for(unsigned long l=1; l<recharge; ++l) {
@@ -159,11 +162,12 @@ unsigned long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noi
             onset_is[(max_i + l)] = 0;
         }
     }   
+    */
 
-
-    onsets[max_i*H] = (val + max_val) / (recharge * 2);
 //    for(unsigned long l=0; l<frames; ++l)
 //        onsets[l*H] = onset_is[l];
-
-    return max_i;
+    if(onset_is[max_i] > onsetTh)
+        return max_i;
+    else 
+        return -10;
 };
