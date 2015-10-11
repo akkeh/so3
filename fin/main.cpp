@@ -30,7 +30,6 @@ int main(int argc, char** argv) {
     // open audiostream:
     Audio_IO audioStream(SAMPLERATE, 1);
     static int input_device;
-
     audioStream.set_mode(AUDIO_IO_READONLY);
     audioStream.set_framesperbuffer(N);
     audioStream.initialise();
@@ -56,33 +55,38 @@ int main(int argc, char** argv) {
     float vigl = atof(argv[1]);
     ART art(N/128, 512, vigl);
 
-    unsigned long strt_n = 0;
-    unsigned long old_strt = 0;
-    float* snd = new float[N];
-    bool test = false;
+    long onset_n = 0;
+    unsigned long w_ptr = 0;
+    unsigned long sndN = N*64;
+
+    float* snd = new float[sndN];
+    for(unsigned long n=0; n<N; ++n)
+        snd[n] = 0;
+
     while (true) {
-        
         audioStream.read(buffer);
-    
         std::cout << "ODF\n";
-        strt_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, recharge);
-        for(unsigned long n=0; n<2048-old_strt; ++n)
-            snd[2048-old_strt + n] = buffer[n];
-        
-        if(test) {
+        onset_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, 0);
+        if(onset_n > 0) {
+            w_ptr = 0;
+            for(unsigned long n=0; n<N-onset_n; ++n) {
+                snd[w_ptr] = buffer[onset_n + n];
+                ++w_ptr;
+            }
+            while(w_ptr < sndN) {
+                audioStream.read(buffer);
+                for(unsigned long n=0; n<N; ++n) {
+                    snd[w_ptr] = buffer[n];
+                    ++w_ptr;
+                    if(w_ptr > sndN)
+                        break;
+                }
+            }; 
+
             std::cout << "STFT\n";
             X = stft.stft(snd, 2048, 512, 512, 128);
             std::cout << "ART\n";
-            art.eval(X, 0);
-            test = false;
-        }
-        if(strt_n > 0) {
-            for(unsigned long n=0; n<N-strt_n; ++n)
-                snd[n] = buffer[n + strt_n];       
-
-            old_strt = strt_n;
-            test = true; 
-            std::cout << "ONSET!\n";
+   //         art.eval(X, 0);
         }
     }
     
