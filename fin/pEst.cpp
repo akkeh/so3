@@ -8,7 +8,7 @@
 /*
     to do:
     -   Lateral inhibition!
-
+    -   $ ./sogmProj3 "sounds/bendir_kort.wav" 2048 0.2 0.2 70 0
 */
 
 pEst::pEst(unsigned long M, unsigned long bins, unsigned long H) {
@@ -79,7 +79,7 @@ float* normalise(float* x, unsigned long N) {
     return y;
 };
 
-long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, float onsetTh, float recharge) {
+long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, float onsetTh, float recharge) {
     unsigned long frames = N/H;
    
     float* x_c = new float[2*N];
@@ -90,19 +90,21 @@ long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, floa
     
     STFT* stft = new STFT(N, M, bins, H);
     float** X = stft->stft(x_c, N, M, bins, H);
+    delete[] x_c;
 
     float** mX = stft_mag(X, frames, bins);
     float** pX = stft_phs(X, frames, bins);
-    
+
     unsigned long hBins = bins >> 1;
     float err;
     float* onset_is = new float[frames];
-    float* onsets = new float[N];
-    for(unsigned long n=0; n<N; ++n)
-        onsets[n] = 0;
+//    float* onsets = new float[N];
+//    for(unsigned long n=0; n<N; ++n)
+ //       onsets[n] = 0;
 
     float amp = 0;
     for(unsigned long l=0; l<frames; ++l) {
+        delete[] X[l];
         onset_is[l] = 0;
         float Ponset = 0;
         for(unsigned long k=0; k<hBins; ++k) {
@@ -122,51 +124,42 @@ long pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, floa
             amp += mX[l][k];
             
         }
-        if(Ponset > (onsetTh * thMul))
-            onset_is[l] = Ponset;// / hBins;
-    
-       if(thMul > 1)
-        thMul *= 1 - (1 / recharge);
-    if(thMul < 1)
-        thMul = 1;
+        onset_is[l] = Ponset;
     }
-    for(unsigned long l=1; l<frames-1; ++l)
+    /*
+    for(unsigned long l=1; l<frames-1; ++l) {
+        delete[] mX[l];
+        delete[] pX[l];
         if(onset_is[l] > 0) {
             if(onset_is[l-1] == 0 && onset_is[l+1] == 0)
                 onset_is[l] = 0;
             onset_is[l] *= (amp - amp_mem) > 0;
         };
-    amp_mem = amp;
-    
-    unsigned long max_i = 0;
+        amp_mem = amp;
+    }
+    */
+    long max_i = 0;
     float max_val = 0;
-    for(unsigned long l=0; l<frames; ++l)
-        if(onset_is[l] > onset_is[max_i])
-            max_i = l;
+    for(unsigned long l=1; l<frames-1; ++l) {
+        if(onset_is[l] > onset_is[max_i]) {
+            max_i = (long)l;
+        }
+    }
     max_val = onset_is[max_i];
-
- 
-    // lateral: 
-    float val = 0;
-    for(unsigned long l=1; l<recharge; ++l) {
-        if((max_i - l) > 0) {
-            val += onset_is[max_i - l];
-            onset_is[max_i - l] = 0;
-            
-        }
-        if((max_i + l) < frames) {
-            val += onset_is[max_i + l];
-            onset_is[(max_i + l)] = 0;
-        }
-    }   
-
-
-    onsets[max_i*H] = (val + max_val) / (recharge * 2);
-//    for(unsigned long l=0; l<frames; ++l)
-//        onsets[l*H] = onset_is[l];
-
-    if(onsets[max_i*H] > onsetTh) 
-        return max_i;
-    else
+    for(unsigned long l=0; l<frames; ++l) {
+        delete[] mX[l];
+        delete[] pX[l];
+    };
+    delete[] X;
+    delete[] mX;
+    delete[] pX;
+   
+    if(onset_is[max_i] > onsetTh) {
+    //    std::cout << "onset at frame: " << max_i << std::endl;
+        std::cout << "Onset: " << onset_is[max_i] << std::endl;
+        return max_i * H;
+    }
+    else { 
         return -10;
+    }
 };

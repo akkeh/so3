@@ -1,6 +1,5 @@
 #include <cmath>
 #include <cstdlib>
-#include <fstream>
 
 #include "pEst.h"
 #include "audio_io.h"
@@ -9,7 +8,7 @@
 #define SAMPLERATE	44100
 #define CHANNELS	1
 #define FRAMES	    65536
-#define ARGCOUNT 5
+#define ARGCOUNT 3 
 
 /* sample input:
 $ ./sogmProj3 4096 0.08 0.001 100
@@ -31,7 +30,7 @@ int findNotZeros(float* x, unsigned long N, unsigned long offset, float* buffer)
 
 int main(int argc, char** argv) {    
     if(argc < ARGCOUNT) {
-        std::cout << "usage: [file][blocksize][errorTh][noiseTh][onsetTh][recharge]\n";
+        std::cout << "usage: ....\n";
         return -1;
     }
 
@@ -40,10 +39,9 @@ int main(int argc, char** argv) {
     unsigned char wr_ptr2;
     
     unsigned long N = atoi(argv[2]);
-    float* buffer = new float[N];
-/*
     // open audiostream:
     Audio_IO audioStream(SAMPLERATE, 1);
+    float* buffer = new float[N];
     static int input_device;
 
     audioStream.set_mode(AUDIO_IO_READONLY);
@@ -54,14 +52,12 @@ int main(int argc, char** argv) {
     std::cin >> input_device;
     audioStream.set_input_device(input_device);
     audioStream.start_server();
-*/
+
 
     // init ODF:
-    float* onsets = new float[N];
     float th = atof(argv[3]);
-    float noiseTh = atof(argv[4]);
-    float onsetTh = atof(argv[5]);
-    float recharge = atof(argv[6]);
+    float* onsets;
+
     pEst* odf = new pEst(512, 512, 128);
 
     unsigned long bufN = -10;
@@ -69,27 +65,25 @@ int main(int argc, char** argv) {
     bool fileRead = true;
     unsigned long rptr = 0;
     unsigned long frame = 0; 
-    std::ofstream onsetFile;
-    onsetFile.open("onsets.txt");
-
-    for(unsigned long l=0; l<(int)bufN/N; ++l) {
-        for(unsigned long n=0; n<N; ++n)
-            buffer[n] = file_buf[n + (N*l)];
-        
-        unsigned long onset = odf->phaseFlux(buffer, N, th, noiseTh, onsetTh, recharge);
-        for(unsigned long n=0; n<N; ++n)
-            if(n != onset)
-                onsetFile << 0 << std::endl;    
-            else
-                onsetFile << 1 << std::endl;
-
-    }
-    /*
     while (true) {
+        /*
         if(!fileRead)
             audioStream.read(buffer); 
+        */
+            for(unsigned long n=0; n<N; ++n) {
+                buffer[n] = file_buf[rptr];
+                rptr++;
+                if(rptr > bufN)
+                    goto exit;
+            };
+        unsigned long onset  = odf->phaseFlux(buffer, N, th);
+        for(unsigned long n=0; n<N; ++n)
+            if(n == onset)
+                std::cout << 1 << std::endl;
+            
+                
+        frame++;
     }
-    */
     exit:
     delete[] buffer;
 

@@ -39,12 +39,11 @@ long ART::eval(float** x, unsigned long id) {
 				min_i = i;
 		};
 		float min_val = y[min_i];
-		delete[] y;
+        delete[] y;
 		//Winner < vigilance?
 		if(min_val < vigilance) {
 			std::cout << "Match, no neuron added" << std::endl;
 			field2[min_i]->won();
-
 			return min_i;
 		} else {
 			add_Neuron(x, id);
@@ -78,6 +77,8 @@ ART::ART(unsigned long t_M, unsigned long t_N, float t_vigilance) {
 };
 
 ART::~ART() {
+    for(unsigned long i=0; i<FIELD2SIZE; ++i)
+        delete field2[i];
 	delete[] field2;
 };
 

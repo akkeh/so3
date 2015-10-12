@@ -14,12 +14,13 @@
 #define ARGCOUNT 5
 
 /* sample input:
-$ ./sogmProj3 4096 0.08 0.001 100
+$ ./sogmProj3 0.01 2048 0.2 1 100
+
 */
 
 int main(int argc, char** argv) {    
     if(argc < ARGCOUNT) {
-        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh][recharge]\n";
+        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh]\n";
         return -1;
     }
 
@@ -30,7 +31,6 @@ int main(int argc, char** argv) {
     // open audiostream:
     Audio_IO audioStream(SAMPLERATE, 1);
     static int input_device;
-
     audioStream.set_mode(AUDIO_IO_READONLY);
     audioStream.set_framesperbuffer(N);
     audioStream.initialise();
@@ -40,45 +40,60 @@ int main(int argc, char** argv) {
     audioStream.set_input_device(input_device);
     audioStream.start_server();
 
+    // init read/write pointers
+    long onset_n = 0;
+    unsigned long w_ptr = 0;
+    unsigned long sndN = N*10;
+
     // init ODF:
-    float* onsets = new float[N];
     float th = atof(argv[3]);
     float noiseTh = atof(argv[4]);
     float onsetTh = atof(argv[5]);
-    float recharge = atof(argv[6]);
     pEst odf(512, 512, 128);
 
     // init STFT:
-    STFT stft(N, 512, 512, 128);
+    STFT stft(sndN, 512, 512, 128);
     float** X;
 
     // init ART:
     float vigl = atof(argv[1]);
     ART art(N/128, 512, vigl);
 
-    unsigned long strt_n = 0;
-    unsigned long old_strt = 0;
-    float* snd = new float[N];
-    bool test = false;
+    float* snd = new float[2*sndN];
+    for(unsigned long n=0; n<N; ++n)
+        snd[n] = 0;
+
+    unsigned long last_Onset = 0;
+    unsigned long i = 0;
     while (true) {
-        
         audioStream.read(buffer);
-        strt_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, recharge);
-        for(unsigned long n=0; n<2048-old_strt; ++n)
-            snd[2048-old_strt + n] = buffer[n];
-        
-        if(test) {
-            X = stft.stft(snd, 2048, 512, 512, 128);
+        onset_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, 0);
+        if(onset_n > 0) {
+            std::cout << "last onset: " << last_Onset << " now: " << i << std::endl;
+            last_Onset = i;
+            w_ptr = 0;
+            for(unsigned long n=0; n<N-onset_n; ++n) {
+                snd[2*w_ptr] = buffer[onset_n + n];
+                snd[2*w_ptr + 1] = 0;
+                ++w_ptr;
+            }
+            while(w_ptr < sndN) {
+                audioStream.read(buffer);
+                for(unsigned long n=0; n<N; ++n) {
+                    snd[2*w_ptr] = buffer[n];
+                    snd[2*w_ptr + 1] = 0;
+                    ++w_ptr;
+                    if(w_ptr > sndN)
+                        break;
+                }
+            }; 
+            std::cout << "STFT\n";
+            X = stft.stft(snd, sndN, 512, 512, 128);
+            std::cout << "ART\n";
             art.eval(X, 0);
-            test = false;
+            std::cout << "now listening..\n";
         }
-        old_strt = strt_n;
-        for(unsigned long n=0; n<N-strt_n; ++n)
-            snd[n] = buffer[n + strt_n];       
-        if(strt_n > 0) {
-            test = true; 
-            std::cout << "ONSET!\n";
-        }
+        ++i;
     }
     
     delete[] buffer;
