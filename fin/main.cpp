@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     // init read/write pointers
     long onset_n = 0;
     unsigned long w_ptr = 0;
-    unsigned long sndN = N*64;
+    unsigned long sndN = N*10;
 
     // init ODF:
     float th = atof(argv[3]);
@@ -62,11 +62,14 @@ int main(int argc, char** argv) {
     for(unsigned long n=0; n<N; ++n)
         snd[n] = 0;
 
+    unsigned long last_Onset = 0;
+    unsigned long i = 0;
     while (true) {
         audioStream.read(buffer);
-        std::cout << "ODF\n";
         onset_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, 0);
         if(onset_n > 0) {
+            std::cout << "last onset: " << last_Onset << " now: " << i << std::endl;
+            last_Onset = i;
             w_ptr = 0;
             for(unsigned long n=0; n<N-onset_n; ++n) {
                 snd[2*w_ptr] = buffer[onset_n + n];
@@ -83,12 +86,15 @@ int main(int argc, char** argv) {
                         break;
                 }
             }; 
-
+            std::cout << "now listening..\n";
+            /*
             std::cout << "STFT\n";
             X = stft.stft(snd, sndN, 512, 512, 128);
             std::cout << "ART\n";
             art.eval(X, 0);
+            */
         }
+        ++i;
     }
     
     delete[] buffer;

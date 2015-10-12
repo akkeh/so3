@@ -98,9 +98,9 @@ long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, flo
     unsigned long hBins = bins >> 1;
     float err;
     float* onset_is = new float[frames];
-    float* onsets = new float[N];
-    for(unsigned long n=0; n<N; ++n)
-        onsets[n] = 0;
+//    float* onsets = new float[N];
+//    for(unsigned long n=0; n<N; ++n)
+ //       onsets[n] = 0;
 
     float amp = 0;
     for(unsigned long l=0; l<frames; ++l) {
@@ -154,10 +154,9 @@ long  pEst::phaseFlux(float* x, unsigned long N, float errTh, float noiseTh, flo
     delete[] mX;
     delete[] pX;
    
-     
     if(onset_is[max_i] > onsetTh) {
-        std::cout << "onset at frame: " << max_i << std::endl;
-
+    //    std::cout << "onset at frame: " << max_i << std::endl;
+        std::cout << "Onset: " << onset_is[max_i] << std::endl;
         return max_i * H;
     }
     else { 
