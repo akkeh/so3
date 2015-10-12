@@ -21,10 +21,11 @@
 *  File name     : osc_client.cpp
 *  System name   : osc++ : Open Sound Control
 *
-*  Description   : simple OSC client based on liblo
+*  Description   : simple OSC client based on liblo (so liblo is required)
 *
 *
 *  Author        : Marc_G
+*  Edited        : Pjotr Lasschuit
 *  E-mail        : marcg@dinkum.nl
 *
 **********************************************************************/
