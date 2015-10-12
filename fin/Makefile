@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -Wall
-LDFLAGS= -L/usr/local/lib -lportaudio
+CFLAGS = -I/usr/local/include -Wall -I../include
+LDFLAGS= -L/usr/local/lib -lportaudio -llo
 
 OBJ= main.o pEst.o STFT.o audio_io.o art.o neuron.o
 SHELL := /bin/bash

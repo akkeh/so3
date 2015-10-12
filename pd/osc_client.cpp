@@ -37,21 +37,12 @@
 #include <unistd.h>
 using namespace std;
 
-int sosc(short bang)
-{lo_address target;
-string symbol;
-target = lo_address_new("localhost","7777");
-lo_send(target,"/bang","ii",bang, 1);
-bang++;
-return 0;
-}
+int sosc(short bang) {
+    lo_address target;
+    string symbol;
+    target = lo_address_new("localhost","7777");
+    lo_send(target,"/bang","ii",bang, 1);
+    bang++;
 
-int main()
-{
-while(1)
-  {
-  short input;
-  cin >> input;
-  sosc(input);
-  }
+return 0;
 }
