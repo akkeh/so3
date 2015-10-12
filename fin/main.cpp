@@ -19,7 +19,7 @@ $ ./sogmProj3 4096 0.08 0.001 100
 
 int main(int argc, char** argv) {    
     if(argc < ARGCOUNT) {
-        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh][recharge]\n";
+        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh]\n";
         return -1;
     }
 
@@ -48,7 +48,6 @@ int main(int argc, char** argv) {
     float th = atof(argv[3]);
     float noiseTh = atof(argv[4]);
     float onsetTh = atof(argv[5]);
-    float recharge = atof(argv[6]);
     pEst odf(512, 512, 128);
 
     // init STFT:
