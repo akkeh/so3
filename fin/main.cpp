@@ -39,7 +39,7 @@ void wait(long t) {
 
 int main(int argc, char** argv) {
     if(argc < ARGCOUNT) {
-        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh]\n";
+        std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh][wait time]\n";
         return -1;
     }
 
@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
 
     unsigned long last_Onset = 0;
     unsigned long i = 0;
+    long waitT = atoi(argv[6]);
     std::time_t t0;
     while (true) {
         audioStream.read(buffer);
@@ -117,7 +118,7 @@ int main(int argc, char** argv) {
                     group_id = art.eval(X, 0);
                     if (group_id >= 0) {
                         sosc(group_id);
-                        t0 = std::time(0) + 1;
+                        t0 = std::time(0) + waitT;
                     }
                     std::cout << "now listening..\n";
                 }
