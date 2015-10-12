@@ -21,7 +21,7 @@ unsigned long ART::get_id_of(unsigned long i) {
 	return field2[i]->get_id();
 };
 
-long ART::eval(float** x, unsigned long id) {
+short ART::eval(float** x, unsigned long id) {
 	if(neuronCount <= 0) {
 		add_Neuron(x, id);
 		return eval(x, id);
@@ -48,7 +48,7 @@ long ART::eval(float** x, unsigned long id) {
 		} else {
 			add_Neuron(x, id);
 			std::cout << "Neuron added, neuronCount: " << neuronCount << std::endl;
-			return neuronCount - 1;
+			return -1;
 		}
 		return -1;
 	};

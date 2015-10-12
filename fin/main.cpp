@@ -1,12 +1,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
-
+#include <string>
 
 #include "art.h"
 #include "STFT.h"
 #include "pEst.h"
 #include "audio_io.h"
+#include <lo/lo.h>
 
 #define SAMPLERATE	44100
 #define CHANNELS	1
@@ -18,7 +19,18 @@ $ ./sogmProj3 0.01 2048 0.2 1 100
 
 */
 
-int main(int argc, char** argv) {    
+//OSC send function
+int sosc(short bang) {
+    lo_address target;
+    std::string symbol;
+    target = lo_address_new("localhost","7777");
+    lo_send(target,"/bang","ii",bang, 1);
+    bang++;
+
+    return 0;
+}
+
+int main(int argc, char** argv) {
     if(argc < ARGCOUNT) {
         std::cout << "usage: [vigilance][blocksize][errorTh][noiseTh][onsetTh]\n";
         return -1;
@@ -26,8 +38,8 @@ int main(int argc, char** argv) {
 
     unsigned long N = atoi(argv[2]);
     float* buffer = new float[N];
-    
-    
+
+
     // open audiostream:
     Audio_IO audioStream(SAMPLERATE, 1);
     static int input_device;
@@ -57,6 +69,7 @@ int main(int argc, char** argv) {
 
     // init ART:
     float vigl = atof(argv[1]);
+    short group_id;
     ART art(N/128, 512, vigl);
 
     float* snd = new float[2*sndN];
@@ -86,16 +99,20 @@ int main(int argc, char** argv) {
                     if(w_ptr > sndN)
                         break;
                 }
-            }; 
+            };
             std::cout << "STFT\n";
             X = stft.stft(snd, sndN, 512, 512, 128);
             std::cout << "ART\n";
-            art.eval(X, 0);
+
+            group_id = art.eval(X, 0);
+            if (group_id >= 0) {
+                sosc(group_id);
+            }
             std::cout << "now listening..\n";
         }
         ++i;
     }
-    
+
     delete[] buffer;
 
     return 0;
