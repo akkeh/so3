@@ -85,11 +85,11 @@ int main(int argc, char** argv) {
 
     unsigned long last_Onset = 0;
     unsigned long i = 0;
-    unsigned long waitN = 0;
+    std::time_t t0;
     while (true) {
         audioStream.read(buffer);
         onset_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, 0);
-        if(i > waitN) {
+        if(std::time(0) > t0) {
 
                 if(onset_n > 0) {
                     std::cout << "last onset: " << last_Onset << " now: " << i << std::endl;
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
                     group_id = art.eval(X, 0);
                     if (group_id >= 0) {
                         sosc(group_id);
-                        wait(1);
+                        t0 = std::time(0) + 1;
                     }
                     std::cout << "now listening..\n";
                 }
