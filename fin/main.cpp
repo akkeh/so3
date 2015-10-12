@@ -39,8 +39,12 @@ int main(int argc, char** argv) {
     audioStream.set_input_device(input_device);
     audioStream.start_server();
 
+    // init read/write pointers
+    long onset_n = 0;
+    unsigned long w_ptr = 0;
+    unsigned long sndN = N*64;
+
     // init ODF:
-    float* onsets = new float[N];
     float th = atof(argv[3]);
     float noiseTh = atof(argv[4]);
     float onsetTh = atof(argv[5]);
@@ -48,18 +52,14 @@ int main(int argc, char** argv) {
     pEst odf(512, 512, 128);
 
     // init STFT:
-    STFT stft(N, 512, 512, 128);
+    STFT stft(sndN, 512, 512, 128);
     float** X;
 
     // init ART:
     float vigl = atof(argv[1]);
     ART art(N/128, 512, vigl);
 
-    long onset_n = 0;
-    unsigned long w_ptr = 0;
-    unsigned long sndN = N*64;
-
-    float* snd = new float[sndN];
+    float* snd = new float[2*sndN];
     for(unsigned long n=0; n<N; ++n)
         snd[n] = 0;
 
@@ -70,13 +70,15 @@ int main(int argc, char** argv) {
         if(onset_n > 0) {
             w_ptr = 0;
             for(unsigned long n=0; n<N-onset_n; ++n) {
-                snd[w_ptr] = buffer[onset_n + n];
+                snd[2*w_ptr] = buffer[onset_n + n];
+                snd[2*w_ptr + 1] = 0;
                 ++w_ptr;
             }
             while(w_ptr < sndN) {
                 audioStream.read(buffer);
                 for(unsigned long n=0; n<N; ++n) {
-                    snd[w_ptr] = buffer[n];
+                    snd[2*w_ptr] = buffer[n];
+                    snd[2*w_ptr + 1] = 0;
                     ++w_ptr;
                     if(w_ptr > sndN)
                         break;
@@ -84,7 +86,7 @@ int main(int argc, char** argv) {
             }; 
 
             std::cout << "STFT\n";
-            X = stft.stft(snd, 2048, 512, 512, 128);
+            X = stft.stft(snd, sndN, 512, 512, 128);
             std::cout << "ART\n";
             art.eval(X, 0);
         }
