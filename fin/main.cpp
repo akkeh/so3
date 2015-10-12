@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <time.h>
 
 #include "art.h"
 #include "STFT.h"
@@ -29,6 +30,12 @@ int sosc(short bang) {
 
     return 0;
 }
+
+void wait(long t) {
+    std::time_t t0 = std::time(0);
+    while(std::time(0) < t0+t) {}; 
+};
+    
 
 int main(int argc, char** argv) {
     if(argc < ARGCOUNT) {
@@ -78,37 +85,42 @@ int main(int argc, char** argv) {
 
     unsigned long last_Onset = 0;
     unsigned long i = 0;
+    unsigned long waitN = 0;
     while (true) {
         audioStream.read(buffer);
         onset_n = odf.phaseFlux(buffer, N, th, noiseTh, onsetTh, 0);
-        if(onset_n > 0) {
-            std::cout << "last onset: " << last_Onset << " now: " << i << std::endl;
-            last_Onset = i;
-            w_ptr = 0;
-            for(unsigned long n=0; n<N-onset_n; ++n) {
-                snd[2*w_ptr] = buffer[onset_n + n];
-                snd[2*w_ptr + 1] = 0;
-                ++w_ptr;
-            }
-            while(w_ptr < sndN) {
-                audioStream.read(buffer);
-                for(unsigned long n=0; n<N; ++n) {
-                    snd[2*w_ptr] = buffer[n];
-                    snd[2*w_ptr + 1] = 0;
-                    ++w_ptr;
-                    if(w_ptr > sndN)
-                        break;
-                }
-            };
-            std::cout << "STFT\n";
-            X = stft.stft(snd, sndN, 512, 512, 128);
-            std::cout << "ART\n";
+        if(i > waitN) {
 
-            group_id = art.eval(X, 0);
-            if (group_id >= 0) {
-                sosc(group_id);
-            }
-            std::cout << "now listening..\n";
+                if(onset_n > 0) {
+                    std::cout << "last onset: " << last_Onset << " now: " << i << std::endl;
+                    last_Onset = i;
+                    w_ptr = 0;
+                    for(unsigned long n=0; n<N-onset_n; ++n) {
+                        snd[2*w_ptr] = buffer[onset_n + n];
+                        snd[2*w_ptr + 1] = 0;
+                        ++w_ptr;
+                    }
+                    while(w_ptr < sndN) {
+                        audioStream.read(buffer);
+                        for(unsigned long n=0; n<N; ++n) {
+                            snd[2*w_ptr] = buffer[n];
+                            snd[2*w_ptr + 1] = 0;
+                            ++w_ptr;
+                            if(w_ptr > sndN)
+                                break;
+                        }
+                    };
+                    std::cout << "STFT\n";
+                    X = stft.stft(snd, sndN, 512, 512, 128);
+                    std::cout << "ART\n";
+
+                    group_id = art.eval(X, 0);
+                    if (group_id >= 0) {
+                        sosc(group_id);
+                        wait(1);
+                    }
+                    std::cout << "now listening..\n";
+                }
         }
         ++i;
     }
