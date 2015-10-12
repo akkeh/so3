@@ -14,7 +14,8 @@
 #define ARGCOUNT 5
 
 /* sample input:
-$ ./sogmProj3 4096 0.08 0.001 100
+$ ./sogmProj3 0.01 2048 0.2 1 100
+
 */
 
 int main(int argc, char** argv) {    
