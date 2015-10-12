@@ -23,7 +23,9 @@ float Neuron::eval(float** x) {
         }
 	y = sqrt(y);
     y = y / (M*N);
-	last_x = x;
+    for(unsigned long m=0; m<M; ++m)
+        for(unsigned long n=0; n<N; ++n)
+            last_x[m][n] = x[m][n];
 	return y;
 };
 
@@ -40,10 +42,14 @@ Neuron::Neuron(float** x, unsigned long t_M, unsigned long t_N, float t_c, unsig
 	M = t_M;
     N = t_N;
 	w = new float*[M];
+    last_x = new float*[M];
     for(unsigned long m=0; m<M; ++m) {
         w[m] = new float[N];
-    	for(unsigned long n=0; n<N; ++n)
+        last_x[m] = new float[N];
+    	for(unsigned long n=0; n<N; ++n) {
 	    	w[m][n] = x[m][n];
+            last_x[m][n] = x[m][n];
+        }
     };
 
 	id = t_id;
@@ -52,7 +58,10 @@ Neuron::Neuron(float** x, unsigned long t_M, unsigned long t_N, float t_c, unsig
 };	// Neuron::Neuron()
 
 Neuron::~Neuron() {
-    for(unsigned long m=0; m<M; ++m)
+    for(unsigned long m=0; m<M; ++m) {
     	delete[] w[m];
+        delete[] last_x[m];
+    }
     delete[] w;
+    delete[] last_x;
 };	// Neuron::~Neuron()

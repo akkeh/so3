@@ -87,13 +87,11 @@ int main(int argc, char** argv) {
                         break;
                 }
             }; 
-            std::cout << "now listening..\n";
-            /*
             std::cout << "STFT\n";
             X = stft.stft(snd, sndN, 512, 512, 128);
             std::cout << "ART\n";
             art.eval(X, 0);
-            */
+            std::cout << "now listening..\n";
         }
         ++i;
     }
