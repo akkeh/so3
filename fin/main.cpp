@@ -33,7 +33,7 @@ int sosc(short bang) {
 
 void wait(long t) {
     std::time_t t0 = std::time(0);
-    while(std::time(0) < t0+t) {}; 
+    while(std::time(0) - t0 < t) {}; 
 };
     
 
