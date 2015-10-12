@@ -1,4 +1,4 @@
-/**********************************************************************
+  /**********************************************************************
 *          Copyright (c) 2013, Hogeschool voor de Kunsten Utrecht
 *                      Hilversum, the Netherlands
 *                          All rights reserved
@@ -32,7 +32,8 @@
 #include <iostream>
 #include <string>
 #include <lo/lo.h>
-
+#include <cstdlib>
+#include <unistd.h>
 using namespace std;
 
 int sosc(short bang) {
